@@ -1,0 +1,57 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>examples</groupId>
+		<artifactId>maven-springboot-mybatis-mapper</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>mybatis-mapper-service</artifactId>
+	
+  	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.encoding>UTF-8</project.encoding>
+		<java.version>1.7</java.version>
+	</properties>
+		
+	<!-- 引入的jar包 -->
+	<dependencies>
+	  	<dependency>
+	  		<groupId>examples</groupId>
+	  		<artifactId>mybatis-mapper-common</artifactId>
+	  		<version>0.0.1-SNAPSHOT</version>
+	  	</dependency>
+	  	
+	  	<!-- 这是Spring Boot的核心启动器，包含了自动配置、日志和YAML。 -->
+	  	<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web -->
+		<!-- S支持全栈式Web开发，包括Tomcat和spring-webmvc。构建Web，包含RESTful风格框架SpringMVC和默认的嵌入式容器Tomcat -->
+		<!-- 由于继承spring-boot-starter-parent所以不用指点 spring-boot-starter-XXX的版本-->
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+			
+		<!-- https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter -->
+		<!-- spring-boot整合mybatis -->
+		<dependency>
+		    <groupId>org.mybatis.spring.boot</groupId>
+		    <artifactId>mybatis-spring-boot-starter</artifactId>
+		    <version>1.3.2</version>
+		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/tk.mybatis/mapper-spring-boot-starter -->
+		<!-- spring-boot整合通用mapper（相较于没有整合的mapper，不需要些通用mapper扫描配置类，只需要在配置文件application.properties做一些配置） -->
+		<!-- (20180531)1.2.0以上版本mapper-spring-boot-starter有问题，通用mapper没有初始化引起的，问题原因：spring boot中Configuration的加载在AutoConfiguration之前。（spring boot中Configuration和AutoConfiguration加载顺序的问题） -->
+		<dependency>
+		    <groupId>tk.mybatis</groupId>
+		    <artifactId>mapper-spring-boot-starter</artifactId>
+		    <version>1.1.7</version>
+		</dependency>
+						  	
+	</dependencies>	
+</project>
