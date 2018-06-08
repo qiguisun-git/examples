@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+	<!-- 
+		默认情况下，Spring Boot会用Logback来记录日志，并用INFO级别输出到控制台。在运行应用程序和其他例子时，你应该已经看到很多INFO级别的日志了。 
+		Logback是log4j框架的作者开发的新一代日志框架，它效率更高、能够适应诸多的运行环境，同时天然支持SLF4J。
+	-->
+	
+	<!-- 
+		实际开发中我们不需要直接添加该依赖。 
+		你会发现spring-boot-starter其中包含了 spring-boot-starter-logging，
+		该依赖内容就是 Spring Boot 默认的日志框架 logback。工程中有用到了Thymeleaf，
+		而Thymeleaf依赖包含了spring-boot-starter，最终我只要引入Thymeleaf即可。
+	-->
+
+	<!-- 
+		自定义日志配置:
+		根据不同的日志系统，你可以按如下规则组织配置文件名，就能被正确加载：
+		Logback：logback-spring.xml, logback-spring.groovy, logback.xml, logback.groovy
+		Log4j：log4j-spring.properties, log4j-spring.xml, log4j.properties, log4j.xml
+		Log4j2：log4j2-spring.xml, log4j2.xml
+		JDK (Java Util Logging)：logging.properties
+		Spring Boot官方推荐优先使用带有-spring的文件名作为你的日志配置（如使用logback-spring.xml，而不是logback.xml），
+		命名为logback-spring.xml的日志配置文件，spring boot可以为它添加一些spring boot特有的配置项（下面会提到）。 
+		默认的命名规则，并且放在 src/main/resources 下面即可"logging.config=classpath:logging-config.xml".
+		如果你即想完全掌控日志配置，但又不想用logback.xml作为Logback配置的名字，application.yml可以通过logging.config属性指定自定义的名字：
+		虽然一般并不需要改变配置文件的名字，但是如果你想针对不同运行时Profile使用不同的日志配置，这个功能会很有用。 
+		一般不需要这个属性，而是直接在logback-spring.xml中使用springProfile配置，不需要logging.config指定不同环境使用不同配置文件。
+	-->
+	
+	<!-- 
+		<contextName> 设置上下文名称
+		每个logger都关联到logger上下文，默认上下文名称为“default”。但可以使用设置成其他名字，用于区分不同应用程序的记录。
+		一旦设置，不能修改,可以通过%contextName来打印日志上下文名称，一般来说我们不用这个属性，可有可无。 
+	-->
+	<!-- <contextName>maven-springboot-mybatis</contextName> -->
+	<property name="LOG_PATH" value="/logs" />
+	<!--设置系统日志目录 -->
+	<property name="HOTELDIR" value="examples" />
+	
+	<!--
+		DEBUG级别输出格式配置:
+		appender用来格式化日志输出节点，有俩个属性name和class，class用来指定哪种输出策略，常用就是控制台输出策略和文件输出策略。
+		layout和encoder，都可以将事件转换为格式化后的日志记录，但是控制台输出使用layout，文件输出使用encoder.
+	 -->
+	<appender name="FILEDEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<!--
+			日志名称，如果没有File 属性，那么只会使用FileNamePattern的文件路径规则
+			如果同时有<File>和<FileNamePattern>，那么当天日志是<File>，明天会自动把今天
+			的日志改名为今天的日期。即，<File> 的日志都是当天的。
+		-->
+		<file>${LOG_PATH}/${HOTELDIR}/log_debug.log</file>
+		<!-- 日志记录器的滚动策略，按日期，按大小记录 -->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!--
+				归档的日志文件的路径，例如今天是2013-12-21日志，当前写的日志文件路径为file节点指定，
+				可以将此文件与file指定文件路径设置为不同路径，从而将当前日志文件或归档日志文件置不同的目录。 
+				而2013-12-21的日志文件在由fileNamePattern指定。%d{yyyy-MM-dd}指定日期格式，%i指定索引
+    		-->
+			<fileNamePattern>${LOG_PATH}/${HOTELDIR}/dbug/log-debug-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<!-- 除按日志记录之外，还配置了日志文件不能超过2M，若超过2M，日志文件会以索引0开始， 命名日志文件，例如log-error-2013-12-21.0.log -->
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>50MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<!--只保留最近90天的日志-->
+        	<maxHistory>90</maxHistory>
+		</rollingPolicy>
+		<!-- 追加方式记录日志 -->
+		<append>true</append>
+		<!-- 日志文件的格式 -->
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger Line:%-3L -%msg%n</pattern>
+			<charset>utf-8</charset>
+		</encoder>
+		<!-- 此日志文件只记录info级别的 -->
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<!--过滤 debug-->
+			<level>debug</level>
+			<!--匹配到就禁止-->
+			<onMatch>ACCEPT</onMatch>
+			<!--没有匹配到就允许-->
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+	
+	<!-- INFO级别输出格式配置 -->
+	<appender name="FILEINFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_PATH}/${HOTELDIR}/log_info.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_PATH}/${HOTELDIR}/info/log-info-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <MaxHistory>30</MaxHistory>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>50MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+        	<maxHistory>90</maxHistory>
+		</rollingPolicy>
+		<append>true</append>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger Line:%-3L -%msg%n</pattern>
+			<charset>utf-8</charset>
+		</encoder>
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>50MB</MaxFileSize>
+        </triggeringPolicy>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>info</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+	
+	<!-- WARN级别输出格式配置 -->
+	<appender name="FILEWARN" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_PATH}/${HOTELDIR}/log_warn.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_PATH}/${HOTELDIR}/warn/log-warn-%d{yyyy-MM-dd}.%i.log
+			</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>50MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>90</maxHistory>
+		</rollingPolicy>
+		<append>true</append>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger Line:%-3L -%msg%n</pattern>
+			<charset>utf-8</charset>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>warn</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>	
+
+	<!-- ERROR级别输出格式配置 -->
+	<appender name="FILEERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_PATH}/${HOTELDIR}/log_error.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>${LOG_PATH}/${HOTELDIR}/error/log-error-%d{yyyy-MM-dd}.%i.log
+			</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>50MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>90</maxHistory>
+		</rollingPolicy>
+		<append>true</append>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger Line:%-3L -%msg%n</pattern>
+			<charset>utf-8</charset>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>error</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+	</appender>
+
+	<!-- 控制台输出格式配置CONSOLE -->
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<!--encoder 默认配置为PatternLayoutEncoder -->
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger Line:%-3L -%msg%n</pattern>
+			<charset>utf-8</charset>
+		</encoder>
+		<!--此日志appender是为开发使用，只配置最底级别，控制台输出的日志级别是大于或等于此级别的日志信息 -->
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>debug</level>
+		</filter>
+	</appender>	
+	
+	<!-- 
+		<loger>用来设置某一个包或者具体的某一个类的日志打印级别、以及指定<appender>。<loger>仅有一个name属性，一个可选的level和一个可选的addtivity属性。
+		name:用来指定受此loger约束的某一个包或者具体的某一个类。
+		level:用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，
+			      还有一个特俗值INHERITED或者同义词NULL，代表强制执行上级的级别。如果未设置此属性，那么当前loger将会继承上级的级别。
+		addtivity:是否向上级loger传递打印信息。默认是true。
+		注意:
+		没有设置addtivity，默认为true，将此loger的打印信息向上级传递root，root接到下级传递的信息,根据自身配置打印信息 
+		没有设置appender，此loger本身不打印任何信息。
+		(即如果loger中有指定的<appender>并且addtivity属性为true是，
+		<loger>会打印相应配置级别的信息<root>又会打印相应配置级别的信息【可能有重复信息打印】，
+		而<loger>没有设置appender，此loger本身不打印任何信息.)
+	-->
+	<logger name="com.examples" level="DEBUG" additivity="false">
+		<appender-ref ref="FILEDEBUG" />
+		<appender-ref ref="FILEINFO" />
+		<appender-ref ref="FILEWARN" />
+		<appender-ref ref="FILEERROR" />
+		<appender-ref ref="CONSOLE" />
+	</logger>
+	<logger name="org.springframework" />
+	<logger name="com.github.pagehelper" />
+	<logger name="com.github.orderbyhelper" />
+	<logger name="com.alibaba.druid" />
+	<logger name="tk.mybatis.pagehelper.mapper" />
+    <logger name="org.apache.ibatis" />
+	
+	<!-- 
+		oot节点是必选节点，用来指定最基础的日志输出级别，只有一个level属性。
+		level:用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL 和 OFF，不能设置为INHERITED或者同义词NULL。默认是DEBUG。 
+		可以包含零个或多个元素，标识这个appender将会添加到这个loger。
+	-->
+	<root level="DEBUG">
+		<appender-ref ref="FILEDEBUG" />
+		<appender-ref ref="FILEERROR" />
+		<appender-ref ref="FILEWARN" />
+		<appender-ref ref="FILEINFO" />
+		<appender-ref ref="CONSOLE" />
+	</root>
+
+</configuration>
